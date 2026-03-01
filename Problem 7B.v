@@ -19,33 +19,90 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module parameterized_alu #(
-    parameter N = 8
+`timescale 1ns / 1ps
+
+module parameter_alu #(
+    parameter N = 32
 )(
-    input  [N-1:0] A,
-    input  [N-1:0] B,
-    input  [2:0] opcode,
+    input  [N-1:0] a,
+    input  [N-1:0] b,
+    input  [2:0]   op,
 
     output reg [N-1:0] result,
-    output reg cmp_res
+    output reg cmp_eq,
+    output reg cmp_lt,
+    output reg cmp_gt
 );
 
-    always @(*) begin
-    result  = {N{1'b0}};
-    cmp_res = 1'b0;
+    // Operation Codes
+    localparam ADD = 3'b000;
+    localparam SUB = 3'b001;
+    localparam AND = 3'b010;
+    localparam OR  = 3'b011;
+    localparam XOR = 3'b100;
+    localparam CMP = 3'b101;
 
-    case (opcode)
-        3'b101: begin // Equal
-            cmp_res = (A == B);
-        end
-        3'b110: begin // Greater than
-            cmp_res = (A > B);
-        end
-        3'b111: begin // Less than
-            cmp_res = (A < B);
-        end
-    endcase
-end
+    always @(*) begin
+        // Default safe assignments (balanced structure baseline)
+        result = {N{1'b0}};
+        cmp_eq = 1'b0;
+        cmp_lt = 1'b0;
+        cmp_gt = 1'b0;
+
+        case (op)
+
+            ADD: begin
+                result = a + b;
+                cmp_eq = 1'b0;
+                cmp_lt = 1'b0;
+                cmp_gt = 1'b0;
+            end
+
+            SUB: begin
+                result = a - b;
+                cmp_eq = 1'b0;
+                cmp_lt = 1'b0;
+                cmp_gt = 1'b0;
+            end
+
+            AND: begin
+                result = a & b;
+                cmp_eq = 1'b0;
+                cmp_lt = 1'b0;
+                cmp_gt = 1'b0;
+            end
+
+            OR: begin
+                result = a | b;
+                cmp_eq = 1'b0;
+                cmp_lt = 1'b0;
+                cmp_gt = 1'b0;
+            end
+
+            XOR: begin
+                result = a ^ b;
+                cmp_eq = 1'b0;
+                cmp_lt = 1'b0;
+                cmp_gt = 1'b0;
+            end
+
+            CMP: begin
+                result = {N{1'b0}};   // Result unused but explicitly cleared
+                cmp_eq = (a == b);
+                cmp_lt = ($signed(a) < $signed(b));
+                cmp_gt = ($signed(a) > $signed(b));
+            end
+
+            default: begin
+                result = {N{1'b0}};
+                cmp_eq = 1'b0;
+                cmp_lt = 1'b0;
+                cmp_gt = 1'b0;
+            end
+
+        endcase
+    end
+
 endmodule
 
 
