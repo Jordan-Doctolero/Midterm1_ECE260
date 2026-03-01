@@ -87,10 +87,10 @@ module parameter_alu #(
             end
 
             CMP: begin
-                result = {N{1'b0}};   // Result unused but explicitly cleared
-                cmp_eq = (a == b);
-                cmp_lt = ($signed(a) < $signed(b));
-                cmp_gt = ($signed(a) > $signed(b));
+                cmp_eq = (a ^ b) == 0;
+            
+                cmp_lt = ($signed({a[N-1], a}) < $signed({b[N-1], b}));
+                cmp_gt = ($signed({a[N-1], a}) > $signed({b[N-1], b}));
             end
 
             default: begin
